@@ -39,12 +39,12 @@ def run_agent():
 
     print("=" * 50)
 
-    for chunk in agent.stream(
-            input={"messages": [("user", "我是谁")]},
-            config=config,
-            debug=True,
-    ):
-        print(chunk, end="")
+    # for chunk in agent.stream(
+    #         input={"messages": [("user", "我是谁")]},
+    #         config=config,
+    #         debug=True,
+    # ):
+    #     print(chunk, end="")
 
 
 if __name__ == "__main__":
