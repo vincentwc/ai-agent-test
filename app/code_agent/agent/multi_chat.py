@@ -2,12 +2,12 @@ import uuid
 
 from langchain_core.runnables import RunnableWithMessageHistory, RunnableConfig
 
-from app.agent.prompts.multi_chat_prompt import multi_chat_prompt
-from app.agent.model.qwen import llm_qwen
+from app.code_agent.prompts.multi_chat_prompt import multi_chat_prompt
+from app.code_agent.model.qwen import llm_qwen
 from langchain_core.output_parsers import StrOutputParser
 from langchain_community.chat_message_histories import FileChatMessageHistory
 from langchain_community.agent_toolkits.file_management import FileManagementToolkit
-from langchain_core.runnables import RunnableSequence,RunnableParallel
+from langchain_core.runnables import RunnableSequence
 
 
 # from langchain.agents import create_agent
