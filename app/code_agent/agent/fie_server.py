@@ -166,4 +166,5 @@ if __name__ == '__main__':
         if user_input.lower() in ["exit", "quit"]:
             break
         res = agent.invoke(input={"messages": user_input}, config=config)
-        # print(res)
+        print("助理: ", res["messages"][-1].content)
+        print()
