@@ -1,6 +1,7 @@
 import subprocess
 
 
+
 def run_applescript(script: str):
     p = subprocess.Popen(["osascript", "-e", script],
                          stdout=subprocess.PIPE,
@@ -51,6 +52,7 @@ end tell
     if error:
         return False
     else:
+
         return get_all_terminal_window_ids()
 
 def get_all_terminal_window_ids():
@@ -71,6 +73,39 @@ return outputList
     return output, error
 
 
+def run_script_in_terminal(script: str):
+    output, error = run_applescript(f"""
+tell application "Terminal"
+    activate
+    if (count of windows) > 0 then
+        do script "{script}" in window 1
+    else
+        do script "{script}"
+    end if
+end tell
+""")
+    if error:
+        return False
+    else:
+        return output
+
+def get_terminal_full_text():
+    output, error = run_applescript(f"""
+tell application "Terminal"
+    set fullText to history of selected tab of front window
+end tell
+""")
+    if error:
+        return False
+    else:
+        return output
+
+
+
 if __name__ == '__main__':
-    window_ids = get_all_terminal_window_ids()
-    print(window_ids)
+    # close_terminal_if_open()
+    # window_ids = open_new_terminal()
+    # print(window_ids)
+    run_script_in_terminal("pwd")
+    full_text = get_terminal_full_text()
+    print(full_text)
