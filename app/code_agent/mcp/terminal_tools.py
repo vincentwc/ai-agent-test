@@ -1,5 +1,10 @@
 import subprocess
+from typing import Annotated
 
+from mcp.server.fastmcp import FastMCP
+from pydantic import Field
+
+mcp = FastMCP()
 
 
 def run_applescript(script: str):
@@ -9,53 +14,7 @@ def run_applescript(script: str):
     output, error = p.communicate()
     return output.decode("utf-8").strip(), error.decode("utf-8").strip()
 
-
-def close_terminal_if_open():
-    """关闭 Terminal 应用（如果正在运行）"""
-    output, error = run_applescript("""
-tell application "System Events"
-    if exists (application processes whose name is "Terminal") then
-        tell application "Terminal" to quit
-    end if
-end tell
-""")
-    if error:
-        return False
-    else:
-        return True
-
-
-def open_new_terminal(window_id: str = "") -> bool | tuple[str, str]:
-    """打开新的 Terminal 窗口"""
-    if window_id:
-        output, error = run_applescript(f"""
-tell application "Terminal"
-    if (count of windows) > 0 then
-        set activeWindow to window id {window_id}
-        set frontmost of activeWindow to true
-        activate
-    else
-        activate 
-    end if
-end tell
-""")
-    else:
-        output, error = run_applescript(f"""
-tell application "Terminal"
-    if (count of windows) > 0 then
-        activate
-    else
-        activate 
-    end if
-end tell
-""")
-    if error:
-        return False
-    else:
-
-        return get_all_terminal_window_ids()
-
-def get_all_terminal_window_ids():
+def get_all_terminal_window_ids() -> str:
     """获取所有 Terminal 窗口的 ID"""
     output, error = run_applescript("""
 tell application "Terminal"
@@ -70,10 +29,65 @@ tell application "Terminal"
 end tell
 return outputList
 """)
-    return output, error
+    if error:
+        return error
+    return output
+
+@mcp.tool(name="close_terminal", description="如果 Terminal 正在运行则关闭")
+def close_terminal_if_open() -> str:
+    """关闭 Terminal 应用（如果正在运行）"""
+    output, error = run_applescript("""
+tell application "System Events"
+    if exists (application processes whose name is "Terminal") then
+        tell application "Terminal" to quit
+    end if
+end tell
+""")
+    if error:
+        return error
+    return output or "Terminal 已成功关闭"
 
 
-def run_script_in_terminal(script: str):
+@mcp.tool(name="open_terminal", description="打开或激活 Terminal 窗口")
+def open_new_terminal(
+        window_id: Annotated[str, Field(description="要激活的 Terminal 窗口 ID", examples=["12345"])] = "",
+) -> str:
+    """打开或激活 Terminal 窗口"""
+    if window_id:
+        output, error = run_applescript(f"""
+tell application "Terminal"
+    if (count of windows) > 0 then
+        set activeWindow to window id {window_id}
+        set frontmost of activeWindow to true
+        activate
+    else
+        activate 
+    end if
+end tell
+""")
+    else:
+        output, error = run_applescript("""
+tell application "Terminal"
+    if (count of windows) > 0 then
+        activate
+    else
+        activate 
+    end if
+end tell
+""")
+    if error:
+        return error
+    window_output, window_error = get_all_terminal_window_ids()
+    if window_error:
+        return window_error
+    return window_output or output
+
+
+@mcp.tool(name="run_terminal_script", description="在 Terminal 中运行 shell 脚本")
+def run_terminal_script(
+        script: Annotated[str, Field(description="要在 Terminal 中执行的 shell 脚本", examples=["ls -al"])],
+) -> str:
+    """在 Terminal 中执行脚本"""
     output, error = run_applescript(f"""
 tell application "Terminal"
     activate
@@ -85,27 +99,22 @@ tell application "Terminal"
 end tell
 """)
     if error:
-        return False
-    else:
-        return output
+        return error
+    return output or "脚本已成功执行"
 
-def get_terminal_full_text():
-    output, error = run_applescript(f"""
+
+@mcp.tool(name="get_terminal_text", description="获取当前 Terminal 标签页的完整文本历史")
+def get_terminal_full_text() -> str:
+    """获取当前 Terminal 标签页的完整文本"""
+    output, error = run_applescript("""
 tell application "Terminal"
     set fullText to history of selected tab of front window
 end tell
 """)
     if error:
-        return False
-    else:
-        return output
-
+        return error
+    return output
 
 
 if __name__ == '__main__':
-    # close_terminal_if_open()
-    # window_ids = open_new_terminal()
-    # print(window_ids)
-    run_script_in_terminal("pwd")
-    full_text = get_terminal_full_text()
-    print(full_text)
+    mcp.run(transport="stdio")

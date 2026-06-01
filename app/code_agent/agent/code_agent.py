@@ -10,6 +10,7 @@ from app.code_agent.agent.fie_server import FileServer
 from app.code_agent.model.qwen import llm_qwen
 from app.code_agent.tools.file_tools import file_tools
 from app.code_agent.tools.shell_tools import get_stdio_shell_tools
+from app.code_agent.tools.terminal_tools import get_stdio_terminal_tools
 
 
 def format_debug_output(step_name: str, content: str, is_tool_call: bool = False) -> None:
@@ -29,9 +30,10 @@ async def run_agent():
     memory = FileServer()
     # memory = MemorySaver()
 
-    shell_tools = await get_stdio_shell_tools()
+    # shell_tools = await get_stdio_shell_tools()
+    terminal_tools = await get_stdio_terminal_tools()
 
-    tools = file_tools + shell_tools
+    tools = file_tools + terminal_tools
 
     agent = create_agent(
         model=llm_qwen,
