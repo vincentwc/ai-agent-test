@@ -1,7 +1,6 @@
 import subprocess
 
 
-
 def run_applescript(script: str):
     p = subprocess.Popen(["osascript", "-e", script],
                          stdout=subprocess.PIPE,
@@ -25,6 +24,53 @@ end tell
         return True
 
 
+def open_new_terminal(window_id: str = "") -> bool | tuple[str, str]:
+    """打开新的 Terminal 窗口"""
+    if window_id:
+        output, error = run_applescript(f"""
+tell application "Terminal"
+    if (count of windows) > 0 then
+        set activeWindow to window id {window_id}
+        set frontmost of activeWindow to true
+        activate
+    else
+        activate 
+    end if
+end tell
+""")
+    else:
+        output, error = run_applescript(f"""
+tell application "Terminal"
+    if (count of windows) > 0 then
+        activate
+    else
+        activate 
+    end if
+end tell
+""")
+    if error:
+        return False
+    else:
+        return get_all_terminal_window_ids()
+
+def get_all_terminal_window_ids():
+    """获取所有 Terminal 窗口的 ID"""
+    output, error = run_applescript("""
+tell application "Terminal"
+    set outputList to {}
+    repeat with aWindow in windows
+        set windowID to id of aWindow
+        set tabCount to number of tabs of aWindow
+        repeat with tabIndex from 1 to tabCount
+            set end of outputList to {tab tabIndex of window id windowID}
+        end repeat
+    end repeat
+end tell
+return outputList
+""")
+    return output, error
+
 
 if __name__ == '__main__':
-    close_terminal_if_open()
+    window_ids = get_all_terminal_window_ids()
+    print(window_ids)
