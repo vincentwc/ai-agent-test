@@ -11,6 +11,7 @@ from app.code_agent.agent.fie_server import FileServer
 from app.code_agent.model.qwen import llm_qwen
 from app.code_agent.rag.rag import retrieve_index, create_client, query_rag_from_bailian
 from app.code_agent.tools.file_tools import file_tools
+from app.code_agent.tools.rag_tools import get_stdio_rag_tools
 from app.code_agent.tools.shell_tools import get_stdio_shell_tools
 from app.code_agent.tools.terminal_tools import get_stdio_terminal_tools
 
@@ -34,29 +35,18 @@ async def run_agent():
 
     # shell_tools = await get_stdio_shell_tools()
     terminal_tools = await get_stdio_terminal_tools()
-    tools = file_tools + terminal_tools
+    rag_tools = await get_stdio_rag_tools()
+    tools = file_tools + terminal_tools + rag_tools
 
     # 方案二：提供一个rag工具，让智能体通过工具查询知识
 
     prompt = PromptTemplate.from_template(template="""
-    # 角色
-    你是一名优秀的工程师，你的名字叫做{name}
+# 角色
+你是一名优秀的工程师，你的名字叫做{name}
 
-    # 重要：终端工具使用规范（必须严格遵守）
-    终端工具有4个：close_terminal、open_terminal、run_terminal_script、get_terminal_text
-    它们有严格的执行顺序和依赖关系：
-
-    1. close_terminal：关闭所有现有终端
-    2. open_terminal：打开新终端
-    3. run_terminal_script：在终端中执行脚本命令
-    4. get_terminal_text：获取终端输出文本
-
-    **关键规则**：
-    - 每一次只能调用1个工具
-    - 必须等待当前工具执行完成并查看结果后，才能调用下一个工具
-    - 绝对不能同时调用多个工具
-    - 根据每个工具的返回结果判断是否需要继续调用下一个工具
-    """)
+# 要求
+执行任务之前先使用 query_rag 工具查询知识库，根据知识库中的知识执行任务
+""")
 
     agent = create_react_agent(
         model=llm_qwen,
@@ -77,15 +67,6 @@ async def run_agent():
         print("\n🤖 助手正在思考和处理...")
         print("=" * 50)
 
-        # res = None
-        # async for event in agent.astream(input={"messages": user_input}, config=config):
-        #     print("event:", event)
-        #     if "messages" in event:
-        #         res = event
-        #
-        # if res:
-        #     print("助理: ", res["messages"][-1].content)
-        # print()
 
         iteration_count = 0
         start_time = time.time()

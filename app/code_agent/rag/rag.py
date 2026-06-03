@@ -7,6 +7,9 @@ from alibabacloud_bailian20231229 import models as bailian_20231229_models
 from alibabacloud_tea_util import models as util_models
 from dotenv import load_dotenv
 from pydantic import Field
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP()
 
 load_dotenv()
 
@@ -47,8 +50,9 @@ def retrieve_index(client, workspace_id: str, index_id: str, query: str):
     )
 
 
+@mcp.tool(name="query_rag",description="从阿里云百炼知识库中读取知识信息")
 def query_rag_from_bailian(
-        query: Annotated[str, Field(description="访问知识库查询的内容", examples="终端的操作规范")]) -> str:
+        query: Annotated[str, Field(description="访问知识库查询的内容", examples=["终端的操作规范"])]) -> str:
     bailian_client = create_client()
     workspace_id = "llm-c3naymmpo4uc2ur0"
     index_id = "ygav25j8sf"
@@ -68,10 +72,11 @@ ___"""
 
 
 if __name__ == '__main__':
-    bailian_client = create_client()
-
-    workspace_id = "llm-c3naymmpo4uc2ur0"
-    index_id = "ygav25j8sf"
-
-    rag = retrieve_index(bailian_client, workspace_id, index_id, "终端操作规范")
-    print(rag.body.data.nodes[0].text)
+    mcp.run(transport="stdio")
+    # bailian_client = create_client()
+    #
+    # workspace_id = "llm-c3naymmpo4uc2ur0"
+    # index_id = "ygav25j8sf"
+    #
+    # rag = retrieve_index(bailian_client, workspace_id, index_id, "终端操作规范")
+    # print(rag.body.data.nodes[0].text)
