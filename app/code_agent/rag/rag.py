@@ -1,9 +1,12 @@
 import os
+from typing import Annotated
+
 import alibabacloud_bailian20231229.client as bailian_20231229_client
 from alibabacloud_tea_openapi import models as open_api_models
 from alibabacloud_bailian20231229 import models as bailian_20231229_models
 from alibabacloud_tea_util import models as util_models
 from dotenv import load_dotenv
+from pydantic import Field
 
 load_dotenv()
 
@@ -44,11 +47,31 @@ def retrieve_index(client, workspace_id: str, index_id: str, query: str):
     )
 
 
+def query_rag_from_bailian(
+        query: Annotated[str, Field(description="访问知识库查询的内容", examples="终端的操作规范")]) -> str:
+    bailian_client = create_client()
+    workspace_id = "llm-c3naymmpo4uc2ur0"
+    index_id = "ygav25j8sf"
+    rag = retrieve_index(bailian_client, workspace_id, index_id, query)
+
+    result = ""
+
+    for data in rag.body.data.nodes:
+        result += f"""{data.text}
+___"""
+
+    print("-" * 60)
+    print("[query_rag_from_bailian]", query)
+    print(result)
+    print("-" * 60)
+    return result
+
+
 if __name__ == '__main__':
-    balilian_client = create_client()
+    bailian_client = create_client()
 
     workspace_id = "llm-c3naymmpo4uc2ur0"
     index_id = "ygav25j8sf"
 
-    rag = retrieve_index(balilian_client, workspace_id, index_id, "终端操作规范")
+    rag = retrieve_index(bailian_client, workspace_id, index_id, "终端操作规范")
     print(rag.body.data.nodes[0].text)

@@ -1,6 +1,16 @@
 # 使用终端工具执行Shell命令的步骤
 
-- 步骤一：调用*关闭终端*工具 close_terminal 关闭所有终端
-- 步骤二：打开一个新的终端 调用*打开终端*工具 open_terminal
-- 步骤三：向终端输入命令，调用*允许终端脚本*工具 run_terminal_script
-- 步骤四：查看终端命令执行结果，调用*获取终端文本*工具 get_terminal_text
+# 重要：终端工具使用规范（必须严格遵守）
+终端工具有4个：close_terminal、open_terminal、run_terminal_script、get_terminal_text
+它们有严格的执行顺序和依赖关系：
+
+1. close_terminal：关闭所有现有终端
+2. open_terminal：打开新终端
+3. run_terminal_script：在终端中执行脚本命令
+4. get_terminal_text：获取终端输出文本
+
+**关键规则**：
+- 每一次只能调用1个工具
+- 必须等待当前工具执行完成并查看结果后，才能调用下一个工具
+- 绝对不能同时调用多个工具
+- 根据每个工具的返回结果判断是否需要继续调用下一个工具

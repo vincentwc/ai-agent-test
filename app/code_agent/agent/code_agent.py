@@ -9,7 +9,7 @@ from langgraph.checkpoint.memory import MemorySaver
 
 from app.code_agent.agent.fie_server import FileServer
 from app.code_agent.model.qwen import llm_qwen
-from app.code_agent.rag.rag import retrieve_index, create_client
+from app.code_agent.rag.rag import retrieve_index, create_client, query_rag_from_bailian
 from app.code_agent.tools.file_tools import file_tools
 from app.code_agent.tools.shell_tools import get_stdio_shell_tools
 from app.code_agent.tools.terminal_tools import get_stdio_terminal_tools
@@ -41,6 +41,21 @@ async def run_agent():
     prompt = PromptTemplate.from_template(template="""
     # 角色
     你是一名优秀的工程师，你的名字叫做{name}
+
+    # 重要：终端工具使用规范（必须严格遵守）
+    终端工具有4个：close_terminal、open_terminal、run_terminal_script、get_terminal_text
+    它们有严格的执行顺序和依赖关系：
+
+    1. close_terminal：关闭所有现有终端
+    2. open_terminal：打开新终端
+    3. run_terminal_script：在终端中执行脚本命令
+    4. get_terminal_text：获取终端输出文本
+
+    **关键规则**：
+    - 每一次只能调用1个工具
+    - 必须等待当前工具执行完成并查看结果后，才能调用下一个工具
+    - 绝对不能同时调用多个工具
+    - 根据每个工具的返回结果判断是否需要继续调用下一个工具
     """)
 
     agent = create_react_agent(
@@ -77,11 +92,7 @@ async def run_agent():
         last_tool_time = start_time
 
         # 方案一： 从阿里云百炼知识库中读取知识，并拼接到提示词中
-        workspace_id = "llm-c3naymmpo4uc2ur0"
-        index_id = "ygav25j8sf"
-
-        balilian_client = create_client()
-        rag = retrieve_index(balilian_client, workspace_id, index_id, user_input)
+        rag = query_rag_from_bailian(user_input)
 
         prompt = f"""
         # 相关知识
