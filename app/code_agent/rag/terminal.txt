@@ -1,0 +1,6 @@
+# 使用终端工具执行Shell命令的步骤
+
+- 步骤一：调用*关闭终端*工具 close_terminal 关闭所有终端
+- 步骤二：打开一个新的终端 调用*打开终端*工具 open_terminal
+- 步骤三：向终端输入命令，调用*允许终端脚本*工具 run_terminal_script
+- 步骤四：查看终端命令执行结果，调用*获取终端文本*工具 get_terminal_text

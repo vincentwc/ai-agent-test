@@ -1,13 +1,15 @@
 import asyncio
 import time
 
-from langchain.agents import create_agent
-from langchain_core.messages import AIMessage, ToolMessage
+from langchain_core.prompts import PromptTemplate
+from langgraph.prebuilt import create_react_agent
+from langchain_core.messages import AIMessage, ToolMessage, SystemMessage
 from langchain_core.runnables import RunnableConfig
 from langgraph.checkpoint.memory import MemorySaver
 
 from app.code_agent.agent.fie_server import FileServer
 from app.code_agent.model.qwen import llm_qwen
+from app.code_agent.rag.rag import retrieve_index, create_client
 from app.code_agent.tools.file_tools import file_tools
 from app.code_agent.tools.shell_tools import get_stdio_shell_tools
 from app.code_agent.tools.terminal_tools import get_stdio_terminal_tools
@@ -32,17 +34,24 @@ async def run_agent():
 
     # shell_tools = await get_stdio_shell_tools()
     terminal_tools = await get_stdio_terminal_tools()
-
     tools = file_tools + terminal_tools
 
-    agent = create_agent(
+    # 方案二：提供一个rag工具，让智能体通过工具查询知识
+
+    prompt = PromptTemplate.from_template(template="""
+    # 角色
+    你是一名优秀的工程师，你的名字叫做{name}
+    """)
+
+    agent = create_react_agent(
         model=llm_qwen,
         tools=tools,
         checkpointer=memory,
-        debug=False
+        debug=False,
+        prompt=SystemMessage(content=prompt.format(name="Bot")),
     )
 
-    config = RunnableConfig(configurable={"thread_id": 12})
+    config = RunnableConfig(configurable={"thread_id": 10})
 
     while True:
         user_input = input("用户:  ")
@@ -67,7 +76,22 @@ async def run_agent():
         start_time = time.time()
         last_tool_time = start_time
 
-        async for chunk in agent.astream(input={"messages": user_input}, config=config):
+        # 方案一： 从阿里云百炼知识库中读取知识，并拼接到提示词中
+        workspace_id = "llm-c3naymmpo4uc2ur0"
+        index_id = "ygav25j8sf"
+
+        balilian_client = create_client()
+        rag = retrieve_index(balilian_client, workspace_id, index_id, user_input)
+
+        prompt = f"""
+        # 相关知识
+        {rag}
+
+        # 用户问题
+        {user_input}
+        """
+
+        async for chunk in agent.astream(input={"messages": prompt}, config=config):
             iteration_count += 1
 
             print(f"\n📉 第{iteration_count}步执行:")

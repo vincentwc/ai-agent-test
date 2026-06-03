@@ -1,4 +1,5 @@
 import subprocess
+import time
 from typing import Annotated
 
 from mcp.server.fastmcp import FastMCP
@@ -14,26 +15,28 @@ def run_applescript(script: str):
     output, error = p.communicate()
     return output.decode("utf-8").strip(), error.decode("utf-8").strip()
 
+
 def get_all_terminal_window_ids() -> str:
     """获取所有 Terminal 窗口的 ID"""
     output, error = run_applescript("""
 tell application "Terminal"
-    set outputList to {}
+    set resultText to ""
     repeat with aWindow in windows
-        set windowID to id of aWindow
+        set wid to id of aWindow
         set tabCount to number of tabs of aWindow
-        repeat with tabIndex from 1 to tabCount
-            set end of outputList to {tab tabIndex of window id windowID}
+        repeat with i from 1 to tabCount
+            set resultText to resultText & "窗口ID: " & wid & " 标签页: " & i & linefeed
         end repeat
     end repeat
+    return resultText
 end tell
-return outputList
 """)
     if error:
         return error
     return output
 
-@mcp.tool(name="close_terminal", description="如果 Terminal 正在运行则关闭")
+
+@mcp.tool(name="close_terminal", description="关闭终端应用程序")
 def close_terminal_if_open() -> str:
     """关闭 Terminal 应用（如果正在运行）"""
     output, error = run_applescript("""
@@ -44,15 +47,16 @@ tell application "System Events"
 end tell
 """)
     if error:
-        return error
-    return output or "Terminal 已成功关闭"
+        return f"关闭 Terminal 失败: {error}"
+    else:
+        return "Terminal 已成功关闭"
 
 
-@mcp.tool(name="open_terminal", description="打开或激活 Terminal 窗口")
+@mcp.tool(name="open_terminal", description="打开新的终端窗口")
 def open_new_terminal(
-        window_id: Annotated[str, Field(description="要激活的 Terminal 窗口 ID", examples=["12345"])] = "",
+        window_id: Annotated[str, Field(description="可选的窗口ID，为空则打开新窗口", examples="12345")] = "",
 ) -> str:
-    """打开或激活 Terminal 窗口"""
+    """打开新的终端窗口或激活指定的窗口"""
     if window_id:
         output, error = run_applescript(f"""
 tell application "Terminal"
@@ -61,40 +65,39 @@ tell application "Terminal"
         set frontmost of activeWindow to true
         activate
     else
-        activate 
+        activate
     end if
-end tell
-""")
+end tell""")
     else:
         output, error = run_applescript("""
 tell application "Terminal"
     if (count of windows) > 0 then
         activate
     else
-        activate 
+        activate
     end if
-end tell
-""")
+end tell""")
     if error:
-        return error
-    window_output, window_error = get_all_terminal_window_ids()
-    if window_error:
-        return window_error
-    return window_output or output
+        return f"打开 Terminal 失败: {error}"
+    else:
+        time.sleep(2)  # 等待 Terminal 打开
+        window_ids = get_all_terminal_window_ids()
+        return f"Terminal 已成功打开，窗口ID: {window_ids}"
 
 
-@mcp.tool(name="run_terminal_script", description="在 Terminal 中运行 shell 脚本")
+@mcp.tool(name="run_terminal_script", description="在终端中运行脚本命令并返回执行结果")
 def run_terminal_script(
-        script: Annotated[str, Field(description="要在 Terminal 中执行的 shell 脚本", examples=["ls -al"])],
+        script: Annotated[str, Field(description="要在终端中运行的脚本命令", examples="ls -al")],
 ) -> str:
-    """在 Terminal 中执行脚本"""
+    """在终端中运行脚本命令并等待执行结果"""
+    safe_script = script.replace('"', '\\"')
     output, error = run_applescript(f"""
 tell application "Terminal"
     activate
     if (count of windows) > 0 then
-        do script "{script}" in window 1
+        do script "{safe_script}" in window 1
     else
-        do script "{script}"
+        do script "{safe_script}"
     end if
 end tell
 """)
@@ -103,16 +106,16 @@ end tell
     return output or "脚本已成功执行"
 
 
-@mcp.tool(name="get_terminal_text", description="获取当前 Terminal 标签页的完整文本历史")
+
+@mcp.tool(name="get_terminal_text", description="获取终端的完整文本内容")
 def get_terminal_full_text() -> str:
-    """获取当前 Terminal 标签页的完整文本"""
+    """获取终端的完整文本内容"""
     output, error = run_applescript("""
 tell application "Terminal"
     set fullText to history of selected tab of front window
-end tell
-""")
+end tell""")
     if error:
-        return error
+        return f"获取终端文本失败: {error}"
     return output
 
 
