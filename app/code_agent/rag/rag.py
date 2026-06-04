@@ -55,7 +55,7 @@ def query_rag_from_bailian(
         query: Annotated[str, Field(description="访问知识库查询的内容", examples=["终端的操作规范"])]) -> str:
     bailian_client = create_client()
     workspace_id = "llm-c3naymmpo4uc2ur0"
-    index_id = "ygav25j8sf"
+    index_id = "w25cj65i8n"
     rag = retrieve_index(bailian_client, workspace_id, index_id, query)
 
     result = ""

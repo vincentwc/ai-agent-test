@@ -1,16 +1,21 @@
-# 使用终端工具执行Shell命令的步骤
+# 要求\n
+## 特别强调\n
+1. 通过终端执行脚本前，必须把Terminal终端关闭\n
+2. 执行完命令或输入指令后，一定要通过 get_terminal_text 查看终端当前的信息后再进行下一步操作\n
 
-# 重要：终端工具使用规范（必须严格遵守）
-终端工具有4个：close_terminal、open_terminal、run_terminal_script、get_terminal_text
-它们有严格的执行顺序和依赖关系：
+## 使用终端工具执行Script命令的步骤\n
+- 步骤1：必须调用*关闭终端*工具 close_terminal 关闭所有终端\n
+- 步骤2：打开一个新的终端，调用*打开终端*工具 open_terminal\n
+- 步骤3：向终端输入命令，调用*允许终端脚本*工具 run_terminal_script\n
+- 步骤4：查看终端命令执行结果，调用*获取终端文本*工具 get_terminal_text\n
 
-1. close_terminal：关闭所有现有终端
-2. open_terminal：打开新终端
-3. run_terminal_script：在终端中执行脚本命令
-4. get_terminal_text：获取终端输出文本
+## 使用终端交互规范\n
+如果发现需要进行Terminal交互的场景，请使用 send_terminal_keyboard_key 工具向终端发送按键命令，常见的按键如下：\n
+- 键盘向上：up\n
+- 键盘向下：down\n
+- 键盘向左：left\n
+- 键盘向右：right\n
+- 回车键：return\n
 
-**关键规则**：
-- 每一次只能调用1个工具
-- 必须等待当前工具执行完成并查看结果后，才能调用下一个工具
-- 绝对不能同时调用多个工具
-- 根据每个工具的返回结果判断是否需要继续调用下一个工具
+# 创建Vue项目的规范\n
+1. 使用 `vue create` 命令来创建 vue 项目\n 

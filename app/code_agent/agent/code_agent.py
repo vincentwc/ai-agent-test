@@ -5,14 +5,12 @@ from langchain_core.prompts import PromptTemplate
 from langgraph.prebuilt import create_react_agent
 from langchain_core.messages import AIMessage, ToolMessage, SystemMessage
 from langchain_core.runnables import RunnableConfig
-from langgraph.checkpoint.memory import MemorySaver
 
 from app.code_agent.agent.fie_server import FileServer
 from app.code_agent.model.qwen import llm_qwen
-from app.code_agent.rag.rag import retrieve_index, create_client, query_rag_from_bailian
+from app.code_agent.rag.rag import query_rag_from_bailian
 from app.code_agent.tools.file_tools import file_tools
 from app.code_agent.tools.rag_tools import get_stdio_rag_tools
-from app.code_agent.tools.shell_tools import get_stdio_shell_tools
 from app.code_agent.tools.terminal_tools import get_stdio_terminal_tools
 
 
