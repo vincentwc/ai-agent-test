@@ -1,5 +1,6 @@
 import os
 import hashlib
+from email import header
 from typing import Annotated
 
 import alibabacloud_bailian20231229.client as bailian_20231229_client
@@ -52,25 +53,25 @@ def retrieve_index(client, workspace_id: str, index_id: str, query: str):
     )
 
 
-@mcp.tool(name="query_rag", description="从阿里云百炼知识库中读取知识信息")
-def query_rag_from_bailian(
-        query: Annotated[str, Field(description="访问知识库查询的内容", examples=["终端的操作规范"])]) -> str:
-    bailian_client = create_client()
-    workspace_id = "llm-c3naymmpo4uc2ur0"
-    index_id = "w25cj65i8n"
-    rag = retrieve_index(bailian_client, workspace_id, index_id, query)
-
-    result = ""
-
-    for data in rag.body.data.nodes:
-        result += f"""{data.text}
-___"""
-
-    print("-" * 60)
-    print("[query_rag_from_bailian]", query)
-    print(result)
-    print("-" * 60)
-    return result
+# @mcp.tool(name="query_rag", description="从阿里云百炼知识库中读取知识信息")
+# def query_rag_from_bailian(
+#         query: Annotated[str, Field(description="访问知识库查询的内容", examples=["终端的操作规范"])]) -> str:
+#     bailian_client = create_client()
+#     workspace_id = "llm-c3naymmpo4uc2ur0"
+#     index_id = "w25cj65i8n"
+#     rag = retrieve_index(bailian_client, workspace_id, index_id, query)
+#
+#     result = ""
+#
+#     for data in rag.body.data.nodes:
+#         result += f"""{data.text}
+# ___"""
+#
+#     print("-" * 60)
+#     print("[query_rag_from_bailian]", query)
+#     print(result)
+#     print("-" * 60)
+#     return result
 
 
 def apply_lease(client, category_id, file_name, file_md5, file_size, workspace_id):
@@ -165,6 +166,103 @@ def describe_file(client, workspace_id, file_id):
     )
 
 
+def create_index(
+        client,
+        workspace_id,
+        name,
+        file_id,
+        structure_type="unstructured",
+        source_type="DATA_CENTER_FILE",
+        sink_type="BUILT_IN"
+):
+    """
+    在阿里云百炼服务中创建知识库（初始化）。
+
+    参数:
+        client (bailian20231229Client): 客户端（Client）。
+        workspace_id (str): 业务空间ID。
+        name (str): 知识库名称。
+        file_id (str): 文档ID。
+        structure_type (str): 知识库的数据类型。
+        source_type (str): 应用数据的数据类型，支持类目类型和文档类型。
+        sink_type (str): 知识库的向量存储类型。
+
+    返回:
+        阿里云百炼服务的响应。
+    """
+    headers = {}
+    request = bailian_20231229_models.CreateIndexRequest(
+        structure_type=structure_type,
+        name=name,
+        source_type=source_type,
+        sink_type=sink_type,
+        document_ids=[file_id]
+    )
+    runtime = util_models.RuntimeOptions()
+    return client.create_index_with_options(workspace_id, request, headers, runtime)
+
+
+def submit_index(client, workspace_id, index_id):
+    headers = {}
+    runtime = util_models.RuntimeOptions()
+    submit_index_job_request = bailian_20231229_models.SubmitIndexJobRequest(index_id=index_id)
+
+    return client.submit_index_job_with_options(workspace_id, submit_index_job_request, headers, runtime)
+
+
+def get_index_job_status(client, workspace_id, index_id, job_id):
+    headers = {}
+    runtime = util_models.RuntimeOptions()
+
+    get_index_job_status_request = bailian_20231229_models.GetIndexJobStatusRequest(
+        index_id=index_id,
+        job_id=job_id,
+    )
+    return client.get_index_job_status_with_options(workspace_id, get_index_job_status_request, headers, runtime)
+
+
+def list_indices(client, workspace_id):
+    """
+    获取指定业务空间下一个或多个知识库的详细信息。
+
+    参数:
+        client (bailian20231229Client): 客户端（Client）。
+        workspace_id (str): 业务空间ID。
+
+    返回:
+        阿里云百炼服务的响应。
+    """
+    headers = {}
+    list_indices_request = bailian_20231229_models.ListIndicesRequest()
+    runtime = util_models.RuntimeOptions()
+    return client.list_indices_with_options(workspace_id, list_indices_request, headers, runtime)
+
+
+def submit_index_add_documents_job(client, workspace_id, index_id, file_id, source_type="DATA_CENTER_FILE"):
+    """
+    向一个非结构化知识库追加导入已解析的文档。
+
+    参数:
+        client (bailian20231229Client): 客户端（Client）。
+        workspace_id (str): 业务空间ID。
+        index_id (str): 知识库ID。
+        file_id (str): 文档ID。
+        source_type(str): 数据类型。
+
+    返回:
+        阿里云百炼服务的响应。
+    """
+    headers = {}
+    submit_index_add_documents_job_request = bailian_20231229_models.SubmitIndexAddDocumentsJobRequest(
+        index_id=index_id,
+        document_ids=[file_id],
+        source_type=source_type
+    )
+    runtime = util_models.RuntimeOptions()
+    return client.submit_index_add_documents_job_with_options(workspace_id, submit_index_add_documents_job_request,
+                                                              headers, runtime)
+
+
 def upload_rag_file_to_bailian(client, workspace_id, category_id, file_path):
     """
     上传文件到百炼数据中心，并添加到指定分类
@@ -219,16 +317,71 @@ def upload_rag_file_to_bailian(client, workspace_id, category_id, file_path):
     print("-" * 60)
     print("=" * 100)
 
-    return describe_file_response
+    return rag_file_id
+
+
+def add_document_to_index(client, workspace_id, index_id, file_id):
+    job_response = submit_index_add_documents_job(client, workspace_id, index_id, file_id)
+    job_id = job_response.body.data.id
+
+    job_status = get_index_job_status(client, workspace_id, index_id, job_id)
+    print(job_status.body.data)
+
+
+@mcp.tool(name="query_rag", description="从阿里云百炼知识库中读取知识信息")
+def query_rag_from_bailian(
+        query: Annotated[str, Field(description="访问知识库查询的内容", examples=["终端的操作规范"])]) -> str:
+    bailian_client = create_client()
+    workspace_id = "llm-c3naymmpo4uc2ur0"
+    index_id = "w25cj65i8n"
+    rag = retrieve_index(bailian_client, workspace_id, index_id, query)
+
+    result = ""
+
+    for data in rag.body.data.nodes:
+        result += f"""{data.text}
+___"""
+
+    return result
+
+
+@mcp.tool(name="upload_local_file_path_to_bailian_rag", description="将本地的知识文件上传到百炼平台知识库")
+def upload_rag_to_bailian(file_path: Annotated[
+    str,
+    Field(
+        description="本地的知识文件路径",
+        examples="/Users/vincent/developEnv/code/ai/ai-agent-test/app/code_agent/rag/rag_test.txt"
+    )]):
+
+    bailian_client = create_client()
+    workspace_id = "llm-c3naymmpo4uc2ur0"
+    category_id = "cate_1b43c6643b6541b983800bf8ebc31c9f_12601485"
+    index_id = "1x5ful2dao"
+
+    field_id = upload_rag_file_to_bailian(bailian_client, workspace_id, category_id, file_path)
+
+    response = add_document_to_index(bailian_client, workspace_id, index_id, field_id)
+
+    return response
+
+
+@mcp.tool(name="query_bailian_rag_job_status", description="查询上传到百炼知识库中的知识文件处理状态")
+def query_bailian_rag_job_status(job_id: str):
+    bailian_client = create_client()
+    workspace_id = "llm-c3naymmpo4uc2ur0"
+    index_id = "1x5ful2dao"
+
+    job_status = get_index_job_status(bailian_client, workspace_id, index_id, job_id)
+    return job_status.body.data
 
 
 if __name__ == '__main__':
-    # mcp.run(transport="stdio")
-    rag_file_path = "/Users/vincent/developEnv/code/ai/ai-agent-test/app/code_agent/rag/rag_test.txt"
-    rag_category_id = "cate_1b43c6643b6541b983800bf8ebc31c9f_12601485"
-    rag_workspace_id = "llm-c3naymmpo4uc2ur0"
+    mcp.run(transport="stdio")
+    # rag_file_path = "/Users/vincent/developEnv/code/ai/ai-agent-test/app/code_agent/rag/rag_test.txt"
+    # rag_category_id = "cate_1b43c6643b6541b983800bf8ebc31c9f_12601485"
+    # rag_workspace_id = "llm-c3naymmpo4uc2ur0"
 
-    bailian_client = create_client()
+    # bailian_client = create_client()
 
     # upload_file_to_bailian(upload_url, headers, rag_file_path)
 
@@ -240,5 +393,29 @@ if __name__ == '__main__':
     # describe_response = describe_file(bailian_client, rag_workspace_id, rag_field_id)
     # print(describe_response)
 
-    upload_rag_file_to_bailian(
-        bailian_client, rag_workspace_id, rag_category_id, rag_file_path)
+    # upload_rag_file_to_bailian(bailian_client, rag_workspace_id, rag_category_id, rag_file_path)
+
+    # response = create_index(bailian_client, rag_workspace_id, "智能体控制知识库", "file_3aab3e615ab7432ca8c2f0ae5917ff0b_12601485")
+    # print(response)
+
+    # index_id = "1x5ful2dao"
+    # job_response = submit_index(bailian_client, rag_workspace_id, index_id)
+    # print(job_response)
+
+    # job_id = job_response.body.data.id
+    # print("job_id:", job_id)
+
+    # rag_job_id = "e49ee5e990514686adb97692696e85f9"
+    # job_status_response = get_index_job_status(bailian_client, rag_workspace_id, index_id, rag_job_id)
+    # print(job_status_response.body.data)
+
+    # list_indices_response = list_indices(bailian_client, rag_workspace_id)
+    # print(list_indices_response.body.data)
+
+    # rag_file_id = "file_2496c48b0aff4e49b6b925d78edf239e_12601485"
+    # response = submit_index_add_documents_job(bailian_client, rag_workspace_id, index_id, rag_file_id)
+    # print(response)
+
+    # rag_job_id = "a009a29388b24f83b11f611a7fd6fa4d"
+    # job_status_response = get_index_job_status(bailian_client, rag_workspace_id, index_id, rag_job_id)
+    # print(job_status_response.body.data)
