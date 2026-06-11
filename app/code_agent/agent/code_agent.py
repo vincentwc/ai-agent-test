@@ -9,6 +9,7 @@ from langchain_core.runnables import RunnableConfig
 from app.code_agent.agent.fie_server import FileServer
 from app.code_agent.model.qwen import llm_qwen
 from app.code_agent.rag.rag import query_rag_from_bailian
+from app.code_agent.tools.browser_tools import get_stdio_browser_tools
 from app.code_agent.tools.file_tools import file_tools
 from app.code_agent.tools.rag_tools import get_stdio_rag_tools
 from app.code_agent.tools.terminal_tools import get_stdio_terminal_tools
@@ -33,8 +34,9 @@ async def run_agent():
 
     # shell_tools = await get_stdio_shell_tools()
     terminal_tools = await get_stdio_terminal_tools()
-    rag_tools = await get_stdio_rag_tools()
-    tools = file_tools + terminal_tools + rag_tools
+    # rag_tools = await get_stdio_rag_tools()
+    browser_tools = await get_stdio_browser_tools()
+    tools = file_tools + terminal_tools + browser_tools
 
     # 方案二：提供一个rag工具，让智能体通过工具查询知识
 
@@ -71,11 +73,10 @@ async def run_agent():
         last_tool_time = start_time
 
         # 方案一： 从阿里云百炼知识库中读取知识，并拼接到提示词中
-        rag = query_rag_from_bailian(user_input)
+        # rag = query_rag_from_bailian(user_input)
 
         prompt = f"""
         # 相关知识
-        {rag}
 
         # 用户问题
         {user_input}
