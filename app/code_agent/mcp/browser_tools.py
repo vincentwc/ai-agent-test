@@ -7,6 +7,7 @@ import time
 from mcp.server.fastmcp import FastMCP
 # Selenium WebDriver 主模块，用于控制浏览器
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 # Chrome 浏览器服务类，用于管理 chromedriver 进程
 from selenium.webdriver.chrome.service import Service
 # 定位符枚举，指定如何查找页面元素（ID、XPath、CSS 等）
@@ -18,10 +19,39 @@ from selenium.webdriver.support import expected_conditions as EC
 # 自动下载匹配 Chrome 版本的 chromedriver
 from webdriver_manager.chrome import ChromeDriverManager
 
-
 # ========== 函数定义 ==========
 
 mcp = FastMCP()
+
+
+# 获取 Chrome 实例
+# /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222 --user-data-dir=/Users/vincent/developEnv/llm/chrome
+def get_chrome_instance():
+    chrome_options = Options()
+    chrome_options.add_experimental_option("debuggerAddress", "127.0.0.1:9222 ")
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(options=chrome_options, service=service)
+    print(f"成功连接到 Chrome 浏览器，当前URL: {driver.current_url}")
+    return driver
+
+
+def open_chrome():
+    driver = get_chrome_instance()
+    driver.get("https://www.baidu.com")
+    print(driver.current_url)
+
+    driver.switch_to.new_window('tab')
+    driver.get("https://www.qq.com")
+    print(driver.current_url)
+
+    # 获取所有句柄
+    all_handles = driver.window_handles
+    print(all_handles)
+
+    # 切换句柄
+    driver.switch_to.window(all_handles[0])
+    print(driver.current_url)
+
 
 @mcp.tool(description="search query word in Baidu")
 def search_in_baidu(query: str):
@@ -186,7 +216,7 @@ def search_in_baidu(query: str):
             # 查找 body 元素
             page_content = driver.find_element(By.TAG_NAME, "body")
             page_text = page_content.text
-            page_text_list.append(f'第{i+1}页：\n{page_text}\n --- \n')
+            page_text_list.append(f'第{i + 1}页：\n{page_text}\n --- \n')
 
         driver.quit()
 
@@ -201,12 +231,13 @@ def search_in_baidu(query: str):
         return None
 
 
-
 # ========== 程序入口 ==========
 
 if __name__ == '__main__':
-    mcp.run(transport="stdio")
+    # mcp.run(transport="stdio")
     # 当直接运行此文件时执行，作为测试入口
     # 调用搜索函数，搜索"北京的天气"
     # res = search_in_baidu("北京的天气")
     # print(res)
+    # get_chrome_instance()
+    open_chrome()
