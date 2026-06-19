@@ -13,6 +13,7 @@ from app.code_agent.tools.browser_tools import get_stdio_browser_tools
 from app.code_agent.tools.file_tools import file_tools
 from app.code_agent.tools.rag_tools import get_stdio_rag_tools
 from app.code_agent.tools.terminal_tools import get_stdio_terminal_tools
+from app.code_agent.tools.vm import get_stdio_vm_tools
 
 
 def format_debug_output(step_name: str, content: str, is_tool_call: bool = False) -> None:
@@ -33,10 +34,11 @@ async def run_agent():
     # memory = MemorySaver()
 
     # shell_tools = await get_stdio_shell_tools()
-    terminal_tools = await get_stdio_terminal_tools()
+    # terminal_tools = await get_stdio_terminal_tools()
     # rag_tools = await get_stdio_rag_tools()
-    browser_tools = await get_stdio_browser_tools()
-    tools = file_tools + terminal_tools + browser_tools
+    vm_tools = await get_stdio_vm_tools()
+    # browser_tools = await get_stdio_browser_tools()
+    tools = vm_tools
 
     # 方案二：提供一个rag工具，让智能体通过工具查询知识
 
@@ -66,7 +68,6 @@ async def run_agent():
 
         print("\n🤖 助手正在思考和处理...")
         print("=" * 50)
-
 
         iteration_count = 0
         start_time = time.time()

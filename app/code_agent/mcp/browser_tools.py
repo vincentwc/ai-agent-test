@@ -356,7 +356,7 @@ def pretty_html(html: str):
 
     # 移除无用属性
     for tag in soup.find_all(True):
-        if tag.name == "a":
+        if tag.name == "a": 
             if "href" in tag.attrs:
                 if  "javascript:" in tag.attrs["href"] or "/" == tag.attrs["href"]:
                     tag.extract()
