@@ -165,7 +165,7 @@ def mysql_update_data(database: str, table: str, data: Dict[str, Any], where: Di
         msg = f"mysql update data error: {str(e)}"
         return msg
 
-
+@mcp.tool(name="mysql_delete_data", description="删除指定表中的数据")
 def mysql_delete_data(database: str, table: str, where: Dict[str, Any]):
     where_clause = 'and'.join([f"{col} = %s" for col in where.keys()])
 
