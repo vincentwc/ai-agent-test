@@ -117,6 +117,7 @@ def mysql_execute_query(command, database=None, params: Optional[list] = None):
         msg = f"query table error: {str(e)}"
         return msg
 
+
 @mcp.tool(name="mysql_insert_date", description="插入数据到指定表")
 def mysql_insert_date(database: str, table: str, data: Dict[str, Any]):
     columns = list(data.keys())
@@ -138,6 +139,7 @@ def mysql_insert_date(database: str, table: str, data: Dict[str, Any]):
     except Exception as e:
         msg = f"mysql insert date error: {str(e)}"
         return msg
+
 
 @mcp.tool(name="mysql_update_data", description="更新指定表中的数据")
 def mysql_update_data(database: str, table: str, data: Dict[str, Any], where: Dict[str, Any]):
@@ -165,6 +167,7 @@ def mysql_update_data(database: str, table: str, data: Dict[str, Any], where: Di
         msg = f"mysql update data error: {str(e)}"
         return msg
 
+
 @mcp.tool(name="mysql_delete_data", description="删除指定表中的数据")
 def mysql_delete_data(database: str, table: str, where: Dict[str, Any]):
     where_clause = 'and'.join([f"{col} = %s" for col in where.keys()])
@@ -188,6 +191,21 @@ def mysql_delete_data(database: str, table: str, where: Dict[str, Any]):
         return msg
 
 
+@mcp.tool(name="mysql_create_database", description="创建指定数据库")
+def mysql_create_database(database: str, charset: str = "utf8mb4"):
+    command = f"create database {database} character set {charset}"
+    print(command)
+    try:
+        result = execute_query(command)
+        return Response(
+            success=True,
+            database=database,
+            table='',
+            data=result,
+        )
+    except Exception as e:
+        msg = f"mysql create database error: {str(e)}"
+        return msg
 
 
 if __name__ == '__main__':
@@ -196,4 +214,5 @@ if __name__ == '__main__':
     # print(mysql_insert_date(database="test", table="user", data={"name": "vv", "age": "2"}))
     # print(mysql_update_data(database="test", table="user", data={"age": "5"}, where={"name": "vv"}))
     # print(mysql_update_data(database="test", table="user", data={"age": "3"}, where={"name": "vv", "age": "2"}))
-    print(mysql_delete_data(database="test", table="user", where={"name": "vv"}))
+    # print(mysql_delete_data(database="test", table="user", where={"name": "vv"}))
+    mysql_create_database("test3")
