@@ -11,6 +11,7 @@ from app.code_agent.model.qwen import llm_qwen
 from app.code_agent.rag.rag import query_rag_from_bailian
 from app.code_agent.tools.browser_tools import get_stdio_browser_tools
 from app.code_agent.tools.file_tools import file_tools
+from app.code_agent.tools.mysql_tools import get_stdio_mysql_tools
 from app.code_agent.tools.rag_tools import get_stdio_rag_tools
 from app.code_agent.tools.terminal_tools import get_stdio_terminal_tools
 from app.code_agent.tools.vm import get_stdio_vm_tools
@@ -36,9 +37,11 @@ async def run_agent():
     # shell_tools = await get_stdio_shell_tools()
     # terminal_tools = await get_stdio_terminal_tools()
     # rag_tools = await get_stdio_rag_tools()
-    vm_tools = await get_stdio_vm_tools()
+    # vm_tools = await get_stdio_vm_tools()
+    mysql_tools = await get_stdio_mysql_tools()
+
     # browser_tools = await get_stdio_browser_tools()
-    tools = vm_tools
+    tools = mysql_tools
 
     # 方案二：提供一个rag工具，让智能体通过工具查询知识
 
