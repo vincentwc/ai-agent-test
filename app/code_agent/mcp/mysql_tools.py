@@ -1,11 +1,9 @@
 import os
-import sys
 from typing import Optional, Dict, Any, Annotated, List
 
 import pymysql
 from mcp.server.fastmcp import FastMCP
 from pydantic import BaseModel, Field
-from sqlalchemy.dialects.mssql.information_schema import columns
 
 mcp = FastMCP()
 
