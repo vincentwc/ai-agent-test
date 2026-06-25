@@ -6,43 +6,50 @@ from langgraph.graph import MessagesState, StateGraph
 from app.code_agent.mcp.browser_tools import search_in_baidu_with_html
 from app.code_agent.model.qwen import llm_qwen
 
+
+class BaiduSearchMessagesState(MessagesState):
+    search_question: str
+    search_keyword: str
+    search_result: str
+
+
 key_extract_query_keyword = "key_extract_query_keyword"
 key_search_baidu = "key_search_baidu"
 key_reply_user = "key_reply_user"
 
 
-def node_extract_query_keyword(state: MessagesState):
+def node_extract_query_keyword(state: BaiduSearchMessagesState):
     last_message = state["messages"][-1]
-    content = last_message.content
-    prompt = StringPromptValue(text=f"请从如下信息中提取需要在百度中搜索的关键词，直接返回最终结果：{content}")
+    question = last_message.content
+    state["search_question"] = question
+    prompt = StringPromptValue(text=f"请从如下信息中提取需要在百度中搜索的关键词，直接返回最终结果：{question}")
     message = llm_qwen.invoke(input=prompt)
     state["messages"].append(message)
+    state["search_keyword"] = message.content
     return state
 
 
-def node_search_baidu(state: MessagesState):
-    last_message = state["messages"][-1]
-    keyword = last_message.content
+def node_search_baidu(state: BaiduSearchMessagesState):
+    keyword = state["search_keyword"]
     html = search_in_baidu_with_html(keyword)
     state["messages"].append(AIMessage(content=f"百度搜索结果：{html}"))
+    state["search_result"] = html
     return state
 
 
-def node_extract_reply_user(state: MessagesState):
-    question = state["messages"][0].content
-    baidu_search_content = state["messages"][-1].content
+def node_extract_reply_user(state: BaiduSearchMessagesState):
     result = llm_qwen.invoke(input=f"""
 # 要求
-请结合百度搜索的结果，回答用户的问题:{question}
+请结合百度搜索的结果，回答用户的问题:{state["search_question"]}
 
 # 百度搜索结果
-{baidu_search_content}
+{state["search_result"]}
 """)
     state["messages"].append(result)
     return state
 
 
-state_graph = StateGraph(MessagesState)
+state_graph = StateGraph(BaiduSearchMessagesState)
 state_graph.add_node(key_extract_query_keyword, node_extract_query_keyword)
 state_graph.add_node(key_search_baidu, node_search_baidu)
 state_graph.add_node(key_reply_user, node_extract_reply_user)
