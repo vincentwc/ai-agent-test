@@ -31,9 +31,17 @@ mcp = FastMCP()
 # /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222 --user-data-dir=/Users/vincent/developEnv/llm/chrome
 def get_chrome_instance():
     chrome_options = Options()
-    chrome_options.add_experimental_option("debuggerAddress", "127.0.0.1:9222 ")
+    # chrome_options.add_experimental_option("debuggerAddress", "127.0.0.1:9222 ")
+
+    # 关键：禁用自动化控制特征，防止网站检测到 Selenium
+    # Blink 引擎的 AutomationControlled 功能会被禁用
+    chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+
+    # 禁用信息栏（如"Chrome 正在受到自动测试软件控制"的提示）
+    chrome_options.add_argument("--disable-infobars")
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(options=chrome_options, service=service)
+
     print(f"成功连接到 Chrome 浏览器，当前URL: {driver.current_url}")
     return driver
 
