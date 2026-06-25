@@ -1,7 +1,24 @@
+from langchain_core.messages import convert_to_messages
 from langgraph_supervisor import create_supervisor
-from langgraph.prebuilt import create_react_agent
 from langchain.agents import create_agent
 from app.code_agent.model.qwen import llm_qwen
+
+
+def pretty_print_message(update, last_message=False):
+    for node_name, node_update in update.items():
+        update_label = f"update from node {node_name}"
+        print(update_label)
+        print("\n")
+        messages = convert_to_messages(node_update["messages"])
+        if last_message:
+            messages = messages[-1:]
+
+        for message in messages:
+            pretty_message = message.pretty_repr(html=True)
+            print(pretty_message)
+
+        print("\n\n")
+
 
 
 def add(a: float, b: float) -> float:
@@ -55,9 +72,9 @@ app = workflow.compile()
 for chunk in app.stream({
     "messages": [
         {
-            "role": "user",
+            "role": "user", 
             "content": "what's the combined headcount of the FAANG companies in 2024?"
         }
     ]
 }):
-    print(chunk)
+    pretty_print_message(chunk, last_message=True)
