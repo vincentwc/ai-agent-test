@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>创新科技 - 企业官网</title>
+    <meta name="description" content="创新科技有限公司 - 专业的数字化解决方案提供商">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <header class="navbar">
+        <div class="container">
+            <div class="logo">
+                <h1>创新科技</h1>
+            </div>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="#home" class="active">首页</a></li>
+                    <li><a href="#about">关于我们</a></li>
+                    <li><a href="#services">服务</a></li>
+                    <li><a href="#portfolio">案例</a></li>
+                    <li><a href="#contact">联系我们</a></li>
+                </ul>
+            </nav>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- 首页横幅 -->
+    <section id="home" class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h2>引领数字未来<br>创造商业价值</h2>
+                <p>我们为企业提供全方位的数字化解决方案，助力业务增长与创新</p>
+                <div class="hero-buttons">
+                    <a href="#services" class="btn btn-primary">了解服务</a>
+                    <a href="#contact" class="btn btn-secondary">联系我们</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 关于我们 -->
+    <section id="about" class="about">
+        <div class="container">
+            <div class="section-header">
+                <h2>关于我们</h2>
+                <p>了解我们的故事和使命</p>
+            </div>
+            <div class="about-content">
+                <div class="about-text">
+                    <h3>创新驱动发展</h3>
+                    <p>创新科技有限公司成立于2015年，是一家专注于企业数字化转型的技术服务公司。我们拥有一支经验丰富的技术团队，致力于为客户提供高质量的软件开发、系统集成和IT咨询服务。</p>
+                    <p>凭借对行业趋势的深刻理解和技术创新能力，我们已成功为超过500家企业提供了定制化的解决方案，帮助客户在激烈的市场竞争中脱颖而出。</p>
+                    <div class="stats">
+                        <div class="stat-item">
+                            <span class="stat-number">500+</span>
+                            <span class="stat-label">合作客户</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">1000+</span>
+                            <span class="stat-label">成功项目</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">8年</span>
+                            <span class="stat-label">行业经验</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-image">
+                    <div class="image-placeholder">公司团队</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 服务 -->
+    <section id="services" class="services">
+        <div class="container">
+            <div class="section-header">
+                <h2>我们的服务</h2>
+                <p>专业服务，助力企业数字化转型</p>
+            </div>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">📱</div>
+                    <h3>移动应用开发</h3>
+                    <p>为iOS和Android平台开发高质量的原生和跨平台移动应用，提升用户体验。</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">💻</div>
+                    <h3>Web应用开发</h3>
+                    <p>构建响应式、高性能的Web应用程序，支持多设备访问和复杂业务逻辑。</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">☁️</div>
+                    <h3>云计算服务</h3>
+                    <p>提供云架构设计、迁移和管理服务，确保系统的高可用性和可扩展性。</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">📊</div>
+                    <h3>数据分析</h3>
+                    <p>通过大数据分析和商业智能，帮助企业做出数据驱动的决策。</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">🔒</div>
+                    <h3>网络安全</h3>
+                    <p>提供全面的网络安全解决方案，保护企业数据和系统免受威胁。</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">🤖</div>
+                    <h3>人工智能</h3>
+                    <p>利用AI和机器学习技术，为企业提供智能化的业务解决方案。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 案例展示 -->
+    <section id="portfolio" class="portfolio">
+        <div class="container">
+            <div class="section-header">
+                <h2>成功案例</h2>
+                <p>我们为客户创造的价值</p>
+            </div>
+            <div class="portfolio-grid">
+                <div class="portfolio-item">
+                    <div class="portfolio-image">
+                        <div class="image-placeholder">电商平台</div>
+                    </div>
+                    <div class="portfolio-info">
+                        <h3>大型电商平台重构</h3>
+                        <p>为某知名零售企业重构电商平台，提升性能300%</p>
+                    </div>
+                </div>
+                <div class="portfolio-item">
+                    <div class="portfolio-image">
+                        <div class="image-placeholder">金融系统</div>
+                    </div>
+                    <div class="portfolio-info">
+                        <h3>银行核心系统升级</h3>
+                        <p>为区域性银行升级核心交易系统，确保高可用性</p>
+                    </div>
+                </div>
+                <div class="portfolio-item">
+                    <div class="portfolio-image">
+                        <div class="image-placeholder">医疗平台</div>
+                    </div>
+                    <div class="portfolio-info">
+                        <h3>智慧医疗平台</h3>
+                        <p>开发集预约、诊疗、健康管理于一体的医疗平台</p>
+                    </div>
+                </div>
+                <div class="portfolio-item">
+                    <div class="portfolio-image">
+                        <div class="image-placeholder">教育系统</div>
+                    </div>
+                    <div class="portfolio-info">
+                        <h3>在线教育平台</h3>
+                        <p>为教育机构打造完整的在线学习和管理系统</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 联系我们 -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <div class="section-header">
+                <h2>联系我们</h2>
+                <p>期待与您合作</p>
+            </div>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <div class="contact-icon">📍</div>
+                        <div>
+                            <h4>地址</h4>
+                            <p>北京市朝阳区建国路88号SOHO现代城A座1201室</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">📞</div>
+                        <div>
+                            <h4>电话</h4>
+                            <p>+86 10 8888 9999</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">✉️</div>
+                        <div>
+                            <h4>邮箱</h4>
+                            <p>info@innovatech.com</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">🕒</div>
+                        <div>
+                            <h4>工作时间</h4>
+                            <p>周一至周五 9:00 - 18:00</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="contact-form">
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <input type="text" id="name" name="name" placeholder="您的姓名 *" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" id="email" name="email" placeholder="您的邮箱 *" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" id="phone" name="phone" placeholder="联系电话">
+                        </div>
+                        <div class="form-group">
+                            <textarea id="message" name="message" rows="5" placeholder="您的留言 *" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">发送消息</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <h2>创新科技</h2>
+                    <p>专业的数字化解决方案提供商</p>
+                </div>
+                <div class="footer-links">
+                    <h4>快速链接</h4>
+                    <ul>
+                        <li><a href="#home">首页</a></li>
+                        <li><a href="#about">关于我们</a></li>
+                        <li><a href="#services">服务</a></li>
+                        <li><a href="#portfolio">案例</a></li>
+                        <li><a href="#contact">联系我们</a></li>
+                    </ul>
+                </div>
+                <div class="footer-social">
+                    <h4>关注我们</h4>
+                    <div class="social-icons">
+                        <a href="#" aria-label="微信">📱</a>
+                        <a href="#" aria-label="微博">🐦</a>
+                        <a href="#" aria-label="LinkedIn">💼</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 创新科技有限公司. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
