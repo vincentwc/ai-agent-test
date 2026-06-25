@@ -1,10 +1,10 @@
 import os
 import sys
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Annotated, List
 
 import pymysql
 from mcp.server.fastmcp import FastMCP
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy.dialects.mssql.information_schema import columns
 
 mcp = FastMCP()
@@ -208,11 +208,46 @@ def mysql_create_database(database: str, charset: str = "utf8mb4"):
         return msg
 
 
+@mcp.tool(name="mysql_create_table", description="创建指定表")
+def mysql_create_table(
+        database: str,
+        table_name: str,
+        table_columns: Annotated[List[str], Field(description="表列定义，每个列用逗号分隔",
+                                                  examples="`id` not null auto_increment primary key,`name` varchar(255) not null,`age` int not null")],
+        table_schema: Annotated[List[str], Field(description="表结构补充信息",
+                                                 examples="engine=InnoDB default charset=utf8mb4 collation=utf8mb4_general_ci"),]):
+    command = f"create table {table_name} ({table_columns}) {table_schema}"
+    print(command)
+    try:
+        result, rowcount = execute_query(command, database=database)
+        return Response(
+            success=True,
+            database=database,
+            table=table_name,
+            data=result,
+            rowcount=rowcount,
+        )
+    except Exception as e:
+        msg = f"mysql create table error: {str(e)}"
+        return msg
+
+
+@mcp.tool(name="mysql_execute_command", description="执行指定数据库命令,如变更表结构、增减字段等")
+def mysql_execute_command(database: str, command: str):
+    try:
+        result, rowcount = execute_query(command, database=database, commit=True)
+
+        return Response(
+            success=True,
+            database=database,
+            table='',
+            data=result,
+            rowcount=rowcount,
+        )
+    except Exception as e:
+        msg = f"mysql execute command error: {str(e)}"
+        return msg
+
+
 if __name__ == '__main__':
-    # print(mysql_execute_query('select * from user where name = %s', database='test', params=['vincent ']))
-    # print(mysql_describe_tables("test", "user"))
-    # print(mysql_insert_date(database="test", table="user", data={"name": "vv", "age": "2"}))
-    # print(mysql_update_data(database="test", table="user", data={"age": "5"}, where={"name": "vv"}))
-    # print(mysql_update_data(database="test", table="user", data={"age": "3"}, where={"name": "vv", "age": "2"}))
-    # print(mysql_delete_data(database="test", table="user", where={"name": "vv"}))
     mysql_create_database("test3")
